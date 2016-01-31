@@ -1,0 +1,145 @@
+---
+title: "test"
+output: html_document
+---
+
+```{r}
+
+```
+
+
+#Experiments in class
+
+We did these tests in class to learn some experimental and plotting methods 
+
+```{r}
+#install.packages("ggplot2")
+
+library(ggplot2)
+library(plyr)
+
+  df <- read.csv("/home/yacine/Documents/performance/M2R-ParallelQuicksort/data/sama_2014-10-13/measurements_03:47.csv",header=T)
+  head(df)
+  plot(df$Size,df$Time,col=c("red","blue","green")[df$Type])
+  ggplot(data=df, aes(x=Size, y=Time, color=Type))+geom_point()
+    
+  df_sum = ddply(df, c("Size", "Type"), summarize, num=length(Time), mean=mean(Time), sd= sd(Time), se=2*sd/sqrt(num))
+  df_sum
+  
+
+  
+ ggplot(data=df_sum,aes(x=Size, y=mean, ymin=mean-se, ymax= mean+se, color=Type))+geom_errorbar()+geom_point()+geom_line()
+ 
+ 
+ #ggplot(data=df, aes(x=Size, y=Time, color=factor(Type), shape=factor(option_compil)))+geom_point()
+  
+```
+
+
+
+
+```{r, echo=FALSE}
+  
+  nb_ech=5;
+  
+  temp1= "/home/yacine/Documents/performance/M2R-ParallelQuicksort/data/sama_2014-10-13/measurements_"
+  temp2= "fromR.txt"
+  
+  cc=paste("./parallelQuicksort ",as.character(as.integer(i)), ">>",OUTPUT_FILE, sep="")
+  cc
+  
+OUTPUT_FILE= paste(temp1,format(Sys.Date(), "%b%d"),temp2, sep="")
+OUTPUT_FILE
+shQuote(paste("> ", OUTPUT_FILE, sep=""), type="sh")
+shQuote(paste("touch ", OUTPUT_FILE, sep=""), type="sh")
+
+#
+nb_ech=5;
+b= c(100,1000, 10000, 100000, 1000000)
+d=sample.int(b,nb_ech,size=1)
+
+for(i in b){
+  
+    for (rep in 1:nb_ech){
+      
+        write(paste("Size: ", as.character(as.integer(i)), sep=""),file=OUTPUT_FILE);
+       
+        shQuote("cd /home/yacine/Documents/performance/M2R-ParallelQuicksort/src", type="sh")
+        shQuote(paste("./parallelQuicksort ",as.character(as.integer(i)), ">>",OUTPUT_FILE, sep=""), type = "sh");
+    }
+
+} 
+
+```
+
+
+#The sizes
+
+Instead of increasing the size of the array gradually, let's try to choose different sizes in a pretty mixed way.
+In the following line, we have the array sizes we use in the script:
+
+1000 2500000 10000 100 5000 1000000 800 100000 430 5000000 4000
+
+```{r}
+
+  library(ggplot2)
+  library(plyr)
+
+ df1 <- read.csv("/home/yacine/Documents/performance/M2R-ParallelQuicksort/data/yacine-S550CA_2016-01-31/measurements_15:37.csv",header=T)
+  head(df1)
+  plot(df1$Size,df1$Time,col=c("red","blue","green")[df1$Type])
+  
+
+```
+
+Let's see the different execution times with ggplot
+
+```{r}
+ ggplot(data=df1, aes(x=Size, y=Time, color=Type))+geom_point()
+  
+```
+
+We can clearly see that the parallel quick sort is not very efficient for little array sizes. The built in quick sort is the best, then the sequential and the parallel one is the worst when we have little arrays.
+This tend to change after the 2.5M  size. When we have a 5M size, it is considerably better to use the parallel quick sort.
+
+##Confidence interval
+
+Now let's see the confidence interval
+
+```{r}
+    df1_sum = ddply(df1, c("Size", "Type"), summarize, num=length(Time), mean=mean(Time), sd= sd(Time), se=2*sd/sqrt(num))
+  df1_sum
+  
+
+  
+ ggplot(data=df1_sum,aes(x=Size, y=mean, ymin=mean-se, ymax= mean+se, color=Type))+geom_errorbar()+geom_point()+geom_line()
+ 
+
+```
+
+Here we can see after applying the confidence interval that there is the very slight difference between the built in and the sequential algorithms for a little array size but when the size is increasing, the built in algorithm is a little bit better. 
+For the parallel quick sort,like we said before, it is only efficient starting a certain array size and then we can notice the exact opposite of time evolution compared to the other 2 algorithms.
+
+#The GCC compiler options 
+
+```{r}
+ 
+
+ df2 <- read.csv("/home/yacine/Documents/performance/M2R-ParallelQuicksort/data/yacine-S550CA_2016-01-31/measurements_18:21.csv",header=T)
+  head(df2)
+  plot(df2$Size,df2$Time,col=c("red","blue","green")[df2$Type])
+
+```
+
+Let's see the different execution times with ggplot
+
+```{r}
+   library(dplyr)
+ggplot(data=df2, aes(x=Size, y=Time, color=factor(Type), shape= factor(Compilation)))+geom_point()+theme_bw()+geom_smooth(method="lm")+facet_wrap(~ Type)
+  
+```
+
+
+
+
+
