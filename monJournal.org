@@ -1,0 +1,83 @@
+/*=========================*/
+/*	Experiments	   */
+/*=========================*/
+
+We are going to see what kind of results we can have depending on the change we are making.
+The goal of these first series of experiments is to compare the execution time of our different quick sort versions.
+First we will change the size of the array, secondly  gcc compiler options and finally  the the number of threads.
+The last attempt we are going to do is to write scripts that can help us to randomly choose (increase/decrease) the size of the array.
+
+
+*** First series of experiments
+
+**The size 
+
+Let's try to see how the three algorithms behave when changing the array size but not in a gradual way (what we are supposed to do next but randomly).
+So we will first do it manually.
+Since one measurement is not enough, we will run the code 10 times in a row.
+
+**see the 15:37 file for the output
+
+perl scripts/csv_quicksort_extractor.pl < data/yacine-S550CA_2016-01-31/measurements_15\:37.txt > data/yacine-S550CA_2016-01-31/measurements_15\:37.csv
+
+
+
+**The compilation options
+
+First we will change our script file. We just  added a new loop to compile in O, O2 and O3, the gcc optimization options.
+I jus edited the CFLAGS variable in the makefile and added an "override" option  so we will be able to  add the optimization to the compilation without loosing the previous value of the Flag (see the Makefile)
+
+//=========================================================================//
+
+OUTPUT_DIRECTORY=data/`hostname`_`date +%F`
+mkdir -p $OUTPUT_DIRECTORY
+OUTPUT_FILE=$OUTPUT_DIRECTORY/measurements_`date +%R`.txt
+
+touch $OUTPUT_FILE
+for i in  1000 2500000 10000 100 5000 1000000 800 100000 430 5000000 4000; do
+    for rep in `seq 1 10`; do
+	for j in "-O" "-O2" "-O3"; do
+		echo "Size: $i" >> $OUTPUT_FILE;
+		echo "Compilation: $j" >> $OUTPUT_FILE;
+		touch ./src/parallelQuicksort.c;
+		make CFLAGS+=$j -C ./src/;
+		./src/parallelQuicksort $i >> $OUTPUT_FILE;
+	done;
+    done ;
+done
+
+
+//==========================================================================//
+
+
+Here we edit the parsing file to take into account the compilation options we just added in the script
+
+//========================================================//
+use strict;
+
+my($line);
+my($size);
+my($compil);
+
+print "Size, Compilation, Type, Time\n" ;
+while($line=<>) {
+    chomp $line;
+    if($line =~/^Size: ([\d\.]*)$/) {
+        $size = $1;
+        next;
+    } 
+     if($line =~/^Compilation: (.*)/) {
+        $compil = $1;
+        next;
+    }
+    if($line =~/^(.*) quicksort.*: ([\d\.]*) sec.$/) {
+        print "$size, \"$compil\", \"$1\", $2\n" ;
+        next;
+    } 
+}
+
+//=========================================================//
+
+
+
+

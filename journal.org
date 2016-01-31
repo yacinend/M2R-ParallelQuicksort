@@ -195,3 +195,9 @@ So let's try to parse in an other way and use gnuplot:
 Well, I'm not sure it is nicer but I have lines. A first crude
 analysis seems to reveal the the parallel version is worth it for
 arrays larger than 400000.
+
+
+
+
+
+
