@@ -78,6 +78,14 @@ while($line=<>) {
 
 //=========================================================//
 
+01-02-2016
+
+debug: 
+If you use multiple -O options, with or without level numbers, the last such option is the one that is effective. 
+I forgot the -O0 option of the cflags in the makefile. I will just remove it before running the script and let's see if it is going to change
+somthing
+
+
 
 
 

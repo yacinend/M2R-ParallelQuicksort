@@ -1,6 +1,6 @@
 ---
 title: "test"
-output: pdf_document
+output: html_document
 ---
 
 ```{r}
@@ -90,7 +90,7 @@ For the parallel quick sort,like we said before, it is only efficient starting a
 ```{r}
  
 
- df2 <- read.csv("/home/yacine/Documents/performance/M2R-ParallelQuicksort/data/yacine-S550CA_2016-02-01/measurements_11:16.csv",header=T)
+ df2 <- read.csv("/home/yacine/Documents/performance/M2R-ParallelQuicksort/data/yacine-S550CA_2016-02-01/measurements_11:40.csv",header=T)
   head(df2)
   plot(df2$Size,df2$Time,col=c("red","blue","green")[df2$Type])
 
@@ -100,10 +100,15 @@ Let's see the different execution times with ggplot
 
 ```{r}
    library(dplyr)
-ggplot(data=df2, aes(x=Size, y=Time, color=factor(Type), shape= factor(Compilation)))+geom_point()+theme_bw()+geom_smooth(method="lm")+facet_wrap(~ Type)
-  
+ggplot(data=df2, aes(x=Size, y=Time, color=factor(Type), shape= factor(Compilation)))+geom_point()+theme_bw()+geom_smooth(method="lm")
 ```
 
+
+```{r}
+
+ggplot(data=df2, aes(x=Size, y=Time, color=factor(Type), shape= factor(Compilation)))+geom_point()+theme_bw()+geom_smooth(method="lm")+facet_wrap(~ Type)
+
+```
 
 
 
