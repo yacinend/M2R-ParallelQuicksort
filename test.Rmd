@@ -1,6 +1,6 @@
 ---
 title: "test"
-output: html_document
+output: pdf_document
 ---
 
 ```{r}
@@ -36,41 +36,6 @@ library(plyr)
 ```
 
 
-
-
-```{r, echo=FALSE}
-  
-  nb_ech=5;
-  
-  temp1= "/home/yacine/Documents/performance/M2R-ParallelQuicksort/data/sama_2014-10-13/measurements_"
-  temp2= "fromR.txt"
-  
-  cc=paste("./parallelQuicksort ",as.character(as.integer(i)), ">>",OUTPUT_FILE, sep="")
-  cc
-  
-OUTPUT_FILE= paste(temp1,format(Sys.Date(), "%b%d"),temp2, sep="")
-OUTPUT_FILE
-shQuote(paste("> ", OUTPUT_FILE, sep=""), type="sh")
-shQuote(paste("touch ", OUTPUT_FILE, sep=""), type="sh")
-
-#
-nb_ech=5;
-b= c(100,1000, 10000, 100000, 1000000)
-d=sample.int(b,nb_ech,size=1)
-
-for(i in b){
-  
-    for (rep in 1:nb_ech){
-      
-        write(paste("Size: ", as.character(as.integer(i)), sep=""),file=OUTPUT_FILE);
-       
-        shQuote("cd /home/yacine/Documents/performance/M2R-ParallelQuicksort/src", type="sh")
-        shQuote(paste("./parallelQuicksort ",as.character(as.integer(i)), ">>",OUTPUT_FILE, sep=""), type = "sh");
-    }
-
-} 
-
-```
 
 
 #The sizes
@@ -125,7 +90,7 @@ For the parallel quick sort,like we said before, it is only efficient starting a
 ```{r}
  
 
- df2 <- read.csv("/home/yacine/Documents/performance/M2R-ParallelQuicksort/data/yacine-S550CA_2016-01-31/measurements_18:21.csv",header=T)
+ df2 <- read.csv("/home/yacine/Documents/performance/M2R-ParallelQuicksort/data/yacine-S550CA_2016-02-01/measurements_11:16.csv",header=T)
   head(df2)
   plot(df2$Size,df2$Time,col=c("red","blue","green")[df2$Type])
 
