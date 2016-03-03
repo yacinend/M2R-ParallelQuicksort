@@ -89,9 +89,20 @@ while($line=<>) {
 
 01-02-2016
 
+<<<<<<< HEAD
 *** debug:
 If you use multiple -O options, with or without level numbers, the last such option is the one that is effective.
 I forgot the -O0 option of the cflags in the makefile. I just removed it before running the script and I can see that it
 changed something. Now we have more interesting results.
+=======
+debug: 
+If you use multiple -O options, with or without level numbers, the last such option is the one that is effective. 
+I forgot the -O0 option of the cflags in the makefile. I will just remove it before running the script and let's see if it is going to change
+something.
+
+Yes that was the problem, so now everything is OK.
+
+
+
 
 ** The thread levels
