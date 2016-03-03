@@ -106,3 +106,5 @@ Yes that was the problem, so now everything is OK.
 
 
 ** The thread levels
+
+see the compte_rendu.pdf

@@ -135,7 +135,7 @@ In this part, we are going to change the thread level in the program. We are goi
 
 ```{r}
 
-df4 <- read.csv("/home/yacine/Documents/performance/M2R-ParallelQuicksort/data/yacine-S550CA_2016-03-03/measurements_threads_18:00.csv",header=T)
+df4 <- read.csv("/home/yacine/Documents/performance/M2R-ParallelQuicksort/data/yacine-S550CA_2016-03-03/measurements_threads_18:30.csv",header=T)
   head(df4)
   ggplot(data=df4, aes(x=Size, y=Time, color=factor(Thread_level)) )+geom_point()+geom_line();
   
@@ -154,32 +154,37 @@ Now, let's apply the confidence interval
  ggplot(data=df4_sum,aes(x=Size, y=mean, ymin=mean-se, ymax= mean+se, color=factor(Thread_level)))+geom_errorbar()+geom_point()+geom_line()
 ```
 
+We can see that for little arrays, there is no need to increase the thread level (for my machine).
+Somehow, using a thread level of 8 is even better than using a thread level of 10.
+We only consider here the parallel quicksort.
+Maybe with bigger array sizes, we coulf of see some changes.I can't really say something, it seems like the lower the thread level, the better the execution time. 
+
 #Experiment 4 :Linear Regression
 
 Now we are going to do some linear regression that can help us make decisions like which array size to use with which algorithm..
 The idea is to estimate the values of a and b ( Y= a+ bX + epsilon )
 
+Let's see the linear regression of the parallel quick sort since we already have an output for it.
+
+```{r}
+
+ 
+ ggplot(data=df4_sum,aes(x=Size, y=mean, ymin=mean-se, ymax= mean+se, color=Type))+geom_smooth(method="lm")+geom_point()+geom_line()
+        
+```
+
+
 
 
 ```{r}
-N=1000;
+ 
+#df=data.frame(x=Size,y=df1_sum);
+#res=lm(data=df1_sum, Parallel~Size);
 
-X= 10*floor(runif(N, min=11,max=100)/10);
-head(X)
+#res;
+#summary(res);
 
-hist(X);
-#y=a +bx + epsilon
-Y= 2+ 5*X+ rnorm(N,sd=20);
-
-plot(X,Y);
-
-df=data.frame(x=df1,y=Y);
-res=lm(data=df, y~x);
-
-res;
-summary(res);
-
-ggplot(data=head(df,n=50), aes(x=x, y=y))+geom_point(alpha=.2)+geom_smooth(method="lm")
+#ggplot(data=head(df,n=50), aes(x=x, y=y))+geom_point(alpha=.2)+geom_smooth(method="lm")
 
 
 ```
