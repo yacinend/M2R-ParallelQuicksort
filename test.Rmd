@@ -1,20 +1,18 @@
 ---
-title: "test"
-output: html_document
+title: "Parallel Quicksort Experiments"
+author: "Yacine Ndiaye"
+date: "4 Mars 2016"
+output: pdf_document
 ---
 
-```{r}
 
-```
-
-
-#Experiments in class
+# __Experiments in class
 
 We did these tests in class to learn some experimental and plotting methods 
 
 ```{r}
 #install.packages("ggplot2")
-
+set.seed(42)
 library(ggplot2)
 library(plyr)
 
@@ -36,9 +34,9 @@ library(plyr)
 ```
 
 
+# __First Experiments
 
-
-#The sizes
+# __ Experiment 1: The sizes
 
 Instead of increasing the size of the array gradually, let's try to choose different sizes in a pretty mixed way.
 In the following line, we have the array sizes we use in the script:
@@ -67,7 +65,7 @@ Let's see the different execution times with ggplot
 We can clearly see that the parallel quick sort is not very efficient for little array sizes. The built in quick sort is the best, then the sequential and the parallel one is the worst when we have little arrays.
 This tend to change after the 2.5M  size. When we have a 5M size, it is considerably better to use the parallel quick sort.
 
-##Confidence interval
+## __Confidence interval
 
 Now let's see the confidence interval
 
@@ -85,31 +83,109 @@ Now let's see the confidence interval
 Here we can see after applying the confidence interval that there is the very slight difference between the built in and the sequential algorithms for a little array size but when the size is increasing, the built in algorithm is a little bit better. 
 For the parallel quick sort,like we said before, it is only efficient starting a certain array size and then we can notice the exact opposite of time evolution compared to the other 2 algorithms.
 
-#The GCC compiler options 
+# __Experiment 2 : The GCC compiler options 
 
 ```{r}
  
 
  df2 <- read.csv("/home/yacine/Documents/performance/M2R-ParallelQuicksort/data/yacine-S550CA_2016-02-01/measurements_11:40.csv",header=T)
   head(df2)
-  plot(df2$Size,df2$Time,col=c("red","blue","green")[df2$Type])
+ 
 
 ```
 
 Let's see the different execution times with ggplot
 
 ```{r}
-   library(dplyr)
-ggplot(data=df2, aes(x=Size, y=Time, color=factor(Type), shape= factor(Compilation)))+geom_point()+theme_bw()+geom_smooth(method="lm")
+  library (dplyr)
+graph=ggplot(data=df2, aes(x=Size, y=Time, color=factor(Type), shape= factor(Compilation)) )+geom_point()+theme_bw()+geom_smooth(method="lm")
+graph
+#graph + coord_cartesian(xlim = c(0,1000000))
+
 ```
+
+The plot show us that when using optimization compiling options, the sequential quick sort can be very efficient (with my machine). That's weird because without the gcc optimization options, we did had before better results with the parallel quick sort. 
+So what happened?
+Maybe it's because of the -00 option that i didn't take into account (We had it before in the makefile but i removed it one moment to debug). So, let's add the -O0 option in the script.
+
+
+It is not really easy to follow with that much information, so now we are just going to do the experiment 1 time for a specific array size.
+
+```{r}
+df3 <- read.csv("/home/yacine/Documents/performance/M2R-ParallelQuicksort/data/yacine-S550CA_2016-03-03/measurements_14:52.csv",header=T)
+
+ggplot(data=df3, aes(x=Size, y=Time, color=factor(Type), shape= factor(Compilation)) )+geom_point()+theme_bw()
+
+
+```
+
+It's a little bit better, as we can see with the graph above,  the parallel quick sort is now better for a big array size,as we had before, but only for a certain compiling option (now we know that it is the -0O option), a result we can also notice around the 5e+06 sizes (the -O0 is represented by the dots).
+
+To conclude, we can say that we must  use the -O0 option if we want to have efficiency with this parallel quick sort. However, the sequential algorithm, with the -O2 option can also be very efficient.
+
+These differences are not very surprising knowing that using the gcc optimization options, the resulting improvement in execution time, both depend on the particular application and the hardware environment (see at the beginning the information about my machine)
+
+Usually it's better to do some experiment to find the best level for the application and that's what we did here. It was a very interesting experiment since the graph can help us choose the right optimization option depending on the size of the array and the quick sort version.
+
+
+#Experiment 3: Thread levels
+
+In this part, we are going to change the thread level in the program. We are going to do some experiments as we did with the array sizes, therefore i will change the code a little bit and as a consequence, create new scripts files to manage the thread levels.
 
 
 ```{r}
 
-ggplot(data=df2, aes(x=Size, y=Time, color=factor(Type), shape= factor(Compilation)))+geom_point()+theme_bw()+geom_smooth(method="lm")+facet_wrap(~ Type)
+df4 <- read.csv("/home/yacine/Documents/performance/M2R-ParallelQuicksort/data/yacine-S550CA_2016-03-03/measurements_threads_18:00.csv",header=T)
+  head(df4)
+  ggplot(data=df4, aes(x=Size, y=Time, color=factor(Thread_level)) )+geom_point()+geom_line();
+  
+
 
 ```
 
+
+Now, let's apply the confidence interval
+
+```{r}
+
+    df4_sum = ddply(df4, c( "Size", "Thread_level", "Type"), summarize, num=length(Time), mean=mean(Time), sd= sd(Time), se=2*sd/sqrt(num))
+  df4_sum
+
+ ggplot(data=df4_sum,aes(x=Size, y=mean, ymin=mean-se, ymax= mean+se, color=factor(Thread_level)))+geom_errorbar()+geom_point()+geom_line()
+```
+
+#Experiment 4 :Linear Regression
+
+Now we are going to do some linear regression that can help us make decisions like which array size to use with which algorithm..
+The idea is to estimate the values of a and b ( Y= a+ bX + epsilon )
+
+
+
+```{r}
+N=1000;
+
+X= 10*floor(runif(N, min=11,max=100)/10);
+head(X)
+
+hist(X);
+#y=a +bx + epsilon
+Y= 2+ 5*X+ rnorm(N,sd=20);
+
+plot(X,Y);
+
+df=data.frame(x=df1,y=Y);
+res=lm(data=df, y~x);
+
+res;
+summary(res);
+
+ggplot(data=head(df,n=50), aes(x=x, y=y))+geom_point(alpha=.2)+geom_smooth(method="lm")
+
+
+```
+
+les étoiles définisssent le niveau de confiance (si la variable a un impact ou pas)
+r-SQUARED:  un nombre entre 0 et 1 qui définit combien de bruit il reste, plus on s'approche de 1 moins on a de bruit).
 
 
 
